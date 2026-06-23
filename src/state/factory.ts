@@ -20,7 +20,7 @@ import type {
 } from "./types";
 
 export const BASE_STATS: Record<UnitClass, UnitStats> = {
-    infantry: { maxHp: 10, attack: 3, defense: 2, movement: 3, range: 1 },
+    infantry: { maxHp: 10, attack: 3, defense: 2, movement: 4, range: 1 },
     archer: { maxHp: 8, attack: 4, defense: 1, movement: 2, range: 3 },
     cavalry: { maxHp: 12, attack: 4, defense: 1, movement: 5, range: 1 },
     mage: { maxHp: 6, attack: 5, defense: 0, movement: 2, range: 3 },
@@ -181,7 +181,7 @@ export function createGameState(options: NewGameOptions): GameState {
         players: { 0: player0, 1: player1 },
         turn: 1,
         activePlayer: 0,
-        phase: "start_turn",
+        phase: "player_phase",
         winCondition,
         victoryState: { status: "ongoing" },
         history: [],

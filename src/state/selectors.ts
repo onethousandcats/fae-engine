@@ -129,7 +129,7 @@ export function getAttackTargets(state: GameState, unitId: UnitID): Unit[] {
     const unit = getUnit(state, unitId);
     if (!unit || unit.hasActed || unit.status === "defeated") return [];
 
-    const range = unit.stats.attack;
+    const range = unit.stats.range;
     const enemies = getLivingUnits(state).filter((u) => u.owner !== unit.owner);
 
     return enemies.filter((enemy) => {
