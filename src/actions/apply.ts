@@ -1,5 +1,5 @@
 // ============================================================
-// FAE ENGINE — Layer 4: State Transition
+// FAE ENGINE — Layer 2: State Transition
 // Pure function: apply(state, action) → newState
 // No side effects. No mutation. Returns a new GameState.
 // This is the heart of the engine.
@@ -8,7 +8,8 @@
 import type { GameState, Unit, PlayerID } from "../state/types";
 import type { GameAction, MoveAction, AttackAction, WaitAction, EndTurnAction } from "./types";
 import { validate } from "./validate";
-import { getUnit, getPlayerUnits, getLivingUnits } from "../state/selectors";
+import { getUnit, getPlayerUnits } from "../state/selectors";
+import { withVictoryCheck } from "../engine/victory";
 
 // ------------------------------------------------------------
 // Public API
@@ -99,7 +100,7 @@ function applyAttack(state: GameState, action: AttackAction): GameState {
     next = { ...next, phase: "unit_phase" };
 
     // Check win condition after every attack
-    next = checkVictory(next);
+    next = withVictoryCheck(next);
 
     return next;
 }
@@ -135,7 +136,7 @@ function applyEndTurn(state: GameState, action: EndTurnAction): GameState {
             next = updateUnit(next, unit.id, {
                 hasMoved: false,
                 hasActed: false,
-                status: unit.status === "stunned" ? "idle" : "idle",
+                status: "idle",
             });
         }
     }
@@ -180,29 +181,4 @@ function applyStartTurn(state: GameState): GameState {
     }
 
     return { ...next, phase: "player_phase" };
-}
-
-// ------------------------------------------------------------
-// WIN CONDITION CHECK
-// Called internally after every state transition that could
-// end the game. Kept here for now; moves to its own module later.
-// ------------------------------------------------------------
-
-function checkVictory(state: GameState): GameState {
-    if (state.victoryState.status !== "ongoing") return state;
-
-    const p0Alive = getLivingUnits(state).some((u) => u.owner === 0);
-    const p1Alive = getLivingUnits(state).some((u) => u.owner === 1);
-
-    if (!p0Alive && !p1Alive) {
-        return { ...state, victoryState: { status: "draw" }, phase: "game_over" };
-    }
-    if (!p0Alive) {
-        return { ...state, victoryState: { status: "victory", winner: 1 }, phase: "game_over" };
-    }
-    if (!p1Alive) {
-        return { ...state, victoryState: { status: "victory", winner: 0 }, phase: "game_over" };
-    }
-
-    return state;
 }
